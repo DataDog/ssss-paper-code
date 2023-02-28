@@ -1,0 +1,16 @@
+[package]
+name = "hll"
+version = "0.1.0"
+authors = ["homin@datadoghq.com", "charles@datadoghq.com"]
+edition = "2021"
+
+[dependencies]
+ahash = { version = "0.7.6" }
+heavy_set_sketches = { version = "0.1.0", path = "../sss" }
+hyperloglog = { version = "1.0.0" }
+itertools = { version = "0.10.3" }
+proptest = { version = "1.0.0" }
+
+[lib]
+doctest = false
+bench = false

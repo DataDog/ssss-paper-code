@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc e55dc6d9f6ac17547eda64a7a9c6562b5e9f4143c765f9560c50576b2bd61eab # shrinks to test_case = TestCase { cardinality: 100, sketch: HyperLogLog { d: 1024, d_log2: 10, alpha: 0.7205407583220416, item_type: PhantomData } }

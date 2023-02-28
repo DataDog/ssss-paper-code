@@ -1,0 +1,13 @@
+[package]
+name = "sss"
+version = "0.1.0"
+authors = ["homin@datadoghq.com", "charles@datadoghq.com"]
+edition = "2021"
+
+[dependencies]
+sketch_traits = { version = "0.1.0", path = "../sketch_traits" }
+hll = { version = "0.1.0", path = "../hll" }
+
+[lib]
+doctest = false
+bench = false

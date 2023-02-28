@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "benchmarks",
+    "count_hll",
+    "hll",
+    "spread",
+    "sss",
+    "ssss",
+]

@@ -1,0 +1,31 @@
+[package]
+name = "benchmarks"
+version = "0.1.0"
+authors = ["homin@datadoghq.com", "charles@datadoghq.com"]
+edition = "2021"
+
+[dependencies]
+sketch_traits = { version = "0.1.0", path = "../sketch_traits" }
+count_hll = { version = "0.1.0", path = "../count_hll" }
+hll = { version = "0.1.0", path = "../hll" }
+spread = { version = "0.1.0", path = "../spread" }
+sss = { version = "0.1.0", path = "../sss" }
+ssss = { version = "0.1.0", path = "../ssss" }
+
+ahash = { version = "0.8.3", default-features = false }
+clap = { version = "4.1.6", features = ["derive"] }
+flate2 = { version = "1.0.25", default-features = false, features = ["default"] }
+itertools = { version = "0.10.5", default-features = false }
+num-format = { version = "0.4.3", default-features = false, features = ["std"] }
+ordered-float = { version = "3.4.0", default-features = false }
+rand = { version = "0.8.5", default-features = true }
+rand_distr = { version = "0.4.3", default-features = false }
+uuid = { version = "1.2.2", default-features = false, features = ["v4"] }
+
+#[dev-dependencies]
+criterion = { version = "0.4.0", features = ["html_reports"] }
+pprof = { version = "0.11.0", features = ["criterion", "flamegraph", "frame-pointer"] }
+
+[[bench]]
+name = "perf"
+harness = false

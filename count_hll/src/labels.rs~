@@ -1,0 +1,99 @@
+//! Various structs to hold labels for Count-HLL
+
+use std::collections::HashSet;
+use std::hash::Hash;
+use std::iter::repeat_with;
+
+#[derive(Clone, Debug)]
+pub struct LabelKeeperMergeError;
+
+pub trait LabelKeeper {
+    type Label;
+
+    fn reset(&mut self);
+
+    fn insert(&mut self, label: Self::Label, index: usize);
+
+    fn count(&self) -> usize;
+
+    fn merge(&mut self, other: &Self) -> Result<(), LabelKeeperMergeError>;
+}
+
+// just a HashSet
+#[derive(Clone, Debug)]
+pub struct LabelSet<L> {
+    labels: HashSet<L>,
+}
+
+impl<L> LabelSet<L> {
+    pub fn new() -> Self {
+        Self {
+            labels: HashSet::new(),
+        }
+    }
+}
+
+impl<L> LabelKeeper for LabelSet<L>
+where
+    L: Eq + Hash + Clone,
+{
+    type Label = L;
+
+    fn reset(&mut self) {
+        self.labels.clear();
+    }
+
+    fn insert(&mut self, label: Self::Label, index: usize) {
+        let _ = index; // index variable unused
+        self.labels.insert(label);
+    }
+
+    fn count(&self) -> usize {
+        self.labels.len()
+    }
+
+    fn merge(&mut self, other: &Self) -> Result<(), LabelKeeperMergeError> {
+        self.labels.extend(other.labels.iter().cloned());
+        Ok(())
+    }
+}
+
+// a pre-defined array
+#[derive(Clone, Debug)]
+pub struct LabelRegisters<L> {
+    size: usize,
+    labels: Vec<Option<L>>,
+}
+
+impl<L> LabelRegisters<L> {
+    pub fn new(size: usize) -> Self {
+        Self {
+            size,
+            labels: repeat_with(|| None).take(size).collect(),
+        }
+    }
+}
+
+impl<L> LabelKeeper for LabelRegisters<L>
+where
+    L: Eq + Hash + Clone,
+{
+    type Label = L;
+
+    fn reset(&mut self) {
+        self.labels = repeat_with(|| None).take(self.size).collect();
+    }
+
+    fn insert(&mut self, label: Self::Label, index: usize) {
+        self.labels[index] = Some(label);
+    }
+
+    fn count(&self) -> usize {
+        self.size
+    }
+
+    fn merge(&mut self, other: &Self) -> Result<(), LabelKeeperMergeError> {
+        self.labels.extend(other.labels.iter().cloned());
+        Ok(())
+    }
+}

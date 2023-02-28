@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 2814b18e2075a0046f57da82885d4469a764c918a6fcb9fde00fe96c04863e9c # shrinks to n = 927920.9882503247, test_case = TestCase { num_entries: 1, num_labels: 1, sketch: PointwiseSketch { d: 512, w: 1000 }, label: 0, label_cardinality: 1, signal: Distribution { cdf: [0.998046875, 1.0] }, background: Distribution { cdf: [1.0] } }
+cc fc142086cb69dfd6b91cd564f40cb4a97c6c13fae9aefcca6f20c95e74e23a05 # shrinks to test_case = TestCase { num_entries: 6000, num_labels: 3, sketch: PointwiseSketch { d: 512, w: 1000 }, label: 2, label_cardinality: 2000, signal: Distribution { cdf: [0.01953125, 0.12890625, 0.3671875, 0.62109375, 0.78125, 0.888671875, 0.9453125, 0.97265625, 0.98828125, 0.9921875, 0.99609375, 0.99609375, 0.998046875, 0.998046875, 0.998046875, 0.998046875, 0.998046875, 1.0] }, background: Distribution { cdf: [0.9980351445195195, 0.9983108108108109, 0.99877807494995, 0.99926684496997, 0.9996109390640641, 0.9997888513513513, 0.999902245995996, 0.9999530780780781, 0.9999824042792793, 0.9999941347597597, 0.9999960898398398, 0.99999804491992, 0.99999804491992, 0.99999804491992, 0.99999804491992, 1.0] } }
