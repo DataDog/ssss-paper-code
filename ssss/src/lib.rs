@@ -117,8 +117,6 @@ where
             return Err(MergeError::ConfigMismatch);
         }
 
-        self.threshold = other.threshold.min(self.threshold);
-
         // merge the two sets of counters
         for (l, c) in other.counters.iter() {
             self.counters
@@ -149,6 +147,13 @@ where
             .for_each(|label| {
                 self.counters.remove(&label);
             });
+
+        self.threshold = self
+            .counters
+            .values()
+            .map(|counter| counter.cardinality())
+            .min()
+            .unwrap_or(0);
 
         Ok(())
     }
