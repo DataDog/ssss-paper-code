@@ -83,21 +83,30 @@ where
                     .entry(label)
                     .or_insert(Cached::new(&self.config.cardinality_sketch_config)),
             )
-        } else if self.cardinality_estimate(&label, item) > self.threshold {
-            // The sampling threshold is reached, remap the existing counter with the minimum cardinality to the label.
-            let (min_label, _) = self
-                .counters
-                .iter()
-                .min_by_key(|(_, counter)| counter.cardinality())
-                .unwrap();
-            // Remove the counter with the minimum cardinality.
-            let min_counter = self.counters.remove(&min_label.clone()).unwrap();
-            // Set threshold to the minimum cardinality.
-            self.threshold = min_counter.cardinality();
-            // Map the counter to the new label.
-            Some(self.counters.entry(label).or_insert(min_counter))
         } else {
-            None
+            let cardinality_estimate = self.cardinality_estimate(&label, item);
+            if cardinality_estimate > self.threshold {
+                let (min_label, min_cardinality) = self
+                    .counters
+                    .iter()
+                    .map(|(label, counter)| (label, counter.cardinality()))
+                    .min_by_key(|(_, cardinality)| *cardinality)
+                    .unwrap(); // set threshold to min cardinality
+                self.threshold = min_cardinality;
+                if cardinality_estimate > min_cardinality {
+                    // The sampling threshold is reached, remap the existing counter with the minimum cardinality to the label.
+                    // Remove the counter with the minimum cardinality.
+                    let min_counter = self.counters.remove(&min_label.clone()).unwrap();
+                    // Set threshold to the minimum cardinality.
+                    self.threshold = min_counter.cardinality();
+                    // Map the counter to the new label.
+                    Some(self.counters.entry(label).or_insert(min_counter))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         } {
             counter.insert(item)
         }
