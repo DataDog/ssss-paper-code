@@ -1,3 +1,5 @@
+<meta name="robots" content="noindex">
+
 # SpaceSavingSets
 
 Heavy Distinct Hitter sketch implementations in Rust.
