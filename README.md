@@ -2,7 +2,7 @@
 
 # IMPORTANT
 
-*IMPORTANT*
+**¡¡IMPORTANT!!**
 
 Reading the LICENSE.md file will invalidate double-blind anonymity.
 
