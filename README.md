@@ -1,12 +1,17 @@
 <meta name="robots" content="noindex">
 
+# IMPORTANT
+
+*IMPORTANT*
+
+Reading the LICENSE.md file will invalidate double-blind anonymity.
+
 # SpaceSavingSets
 
 Heavy Distinct Hitter sketch implementations in Rust.
 
 Code used to generate data for the Experiments section of:
 
-Homin K. Lee and Charles Masson.
 Sampling Space-Saving Set Sketches.
 
 ## Usage
