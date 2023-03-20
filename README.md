@@ -4,7 +4,7 @@
 
 **¡¡IMPORTANT!!**
 
-Reading the LICENSE.md file will invalidate double-blind anonymity.
+Reading the LICENSE file will invalidate double-blind anonymity.
 
 # SpaceSavingSets
 
