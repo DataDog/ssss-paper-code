@@ -193,8 +193,8 @@ where
     S::Item: Hash,
 {
     #[inline]
-    fn cardinality_estimate(&self, _label: &L, item: &S::Item) -> u64 {
-        (u64::MAX as f64 / self.config.hash_builder.hash_one(item) as f64) as u64
+    fn cardinality_estimate(&self, label: &L, item: &S::Item) -> u64 {
+        (u64::MAX as f64 / self.config.hash_builder.hash_one((label, item)) as f64) as u64
     }
 }
 
