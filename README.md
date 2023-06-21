@@ -1,11 +1,5 @@
 <meta name="robots" content="noindex">
 
-# IMPORTANT
-
-**¡¡IMPORTANT!!**
-
-Reading the LICENSE file will invalidate double-blind anonymity.
-
 # SpaceSavingSets
 
 Heavy Distinct Hitter sketch implementations in Rust.
