@@ -13,13 +13,14 @@ use sketch_traits::HeavyDistinctHitterSketch;
 
 use crate::{
     algo::Algorithm,
-    data::{synth::Overlap, Dataset, FileDataset, FolderDataset},
+    data::{Dataset, FileDataset, FolderDataset},
+    data::synth::{Overlap, Zipf},
     exact::GroundTruth,
     memory::{MaxCapacity, MemorySize},
     specialized_dispatch, SketchType,
 };
 
-fn dataset_ground_truth<L, I>(
+pub fn dataset_ground_truth<L, I>(
     dataset: &impl Dataset<Label = L, Item = I>,
     verbose: bool,
 ) -> GroundTruth<L, I>
@@ -195,7 +196,56 @@ pub fn run_combos(
     }
 }
 
-fn sketch_dataset<L, I, A>(
+
+pub fn run_zipf(
+    num_labels: usize,
+    exponent: f64,
+    num_samples: usize,
+    sketch_types: &[SketchType],
+    memories: &[f32],
+    counter_sizes: &[usize],
+    verbose: bool,
+) {
+    let dataset = Zipf::new(num_labels, exponent, num_samples, true);
+    let ground_truth = Box::new(dataset_ground_truth(&dataset, verbose));
+
+    for sketch_type in sketch_types {
+        specialized_dispatch! {
+            sketch_type,
+            |algorithm| {
+                println!("Algo: {}", algorithm);
+                for memory in memories {
+                    for counter_size in counter_sizes {
+                        let entries = MaxCapacity::entries_for_mbs(&algorithm, *memory, *counter_size);
+                        sketch_dataset(entries, *counter_size, &algorithm, &ground_truth, &dataset)
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+pub fn run_overlap(
+    k_small: u32,
+    n_big: usize,
+    sketch_types: &[SketchType],
+    entries: usize,
+    counter_size: usize,
+    verbose: bool,
+) {
+    let dataset = Overlap::new(k_small, n_big, true);
+    let ground_truth = Box::new(dataset_ground_truth(&dataset, verbose));
+
+    for sketch_type in sketch_types {
+        specialized_dispatch!(sketch_type, |algorithm| {
+            println!("Algo: {}", algorithm);
+            sketch_dataset(entries, counter_size, &algorithm, &ground_truth, &dataset);
+        })
+    }
+}
+
+pub fn sketch_dataset<L, I, A>(
     entries: usize,
     counter_size: usize,
     algorithm: &A,
@@ -282,7 +332,8 @@ fn print_stats<L, I>(
     print!("Top\tNAE(T)\tNAE(S)\tNAE(M)\tNAE(Q)\t");
     print!("NRSE(T)\tNRSE(S)\tNRSE(Q)\t");
     print!("RMAE(T)\tRMAE(S)\tRMAE(Q)\t");
-    println!("RMSE(T)\tRMSE(S)\tRMSE(Q)");
+    print!("RMSE(T)\tRMSE(S)\tRMSE(Q)\t");
+    println!("RMAX(T)\tRMAX(S)\tRMAX(Q)");
 
     for p in 1..4 {
         let k = usize::pow(10, p);
@@ -319,11 +370,19 @@ fn print_stats<L, I>(
         );
         let true_rrmse = ground_truth.actual_rrmse(sketch, k);
         let sketch_rrmse = ground_truth.sketch_rrmse(&sketch_top_k[..sketch_k].to_vec());
-        println!(
-            "{:.3}\t{:.3}\t{:.3}",
+        print!(
+            "{:.3}\t{:.3}\t{:.3}\t",
             true_rrmse,
             sketch_rrmse,
             quadratic_mean(true_rrmse, sketch_rrmse,)
+        );
+        let true_rel_max = ground_truth.actual_rel_max(sketch, k);
+        let sketch_rel_max = ground_truth.sketch_rel_max(&sketch_top_k[..sketch_k].to_vec());
+        println!(
+            "{:.3}\t{:.3}\t{:.3}",
+            true_rel_max,
+            sketch_rel_max,
+            quadratic_mean(true_rel_max, sketch_rel_max,)
         );
     }
 }
@@ -334,23 +393,4 @@ fn mean(a: f64, b: f64) -> f64 {
 
 fn quadratic_mean(a: f64, b: f64) -> f64 {
     ((a * a + b * b) / 2.0).sqrt()
-}
-
-pub fn run_overlap(
-    k_small: u32,
-    n_big: usize,
-    sketch_types: &[SketchType],
-    entries: usize,
-    counter_size: usize,
-    verbose: bool,
-) {
-    let dataset = Overlap::new(k_small, n_big, true);
-    let ground_truth = Box::new(dataset_ground_truth(&dataset, verbose));
-
-    for sketch_type in sketch_types {
-        specialized_dispatch!(sketch_type, |algorithm| {
-            println!("Algo: {}", algorithm);
-            sketch_dataset(entries, counter_size, &algorithm, &ground_truth, &dataset);
-        })
-    }
 }

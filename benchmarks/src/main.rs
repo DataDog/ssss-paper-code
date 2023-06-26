@@ -3,7 +3,7 @@ use std::{fmt, path::PathBuf};
 
 use clap::{ArgAction, Parser, Subcommand};
 
-use crate::dataset::{run_combos, run_overlap, run_sketch, ComboType};
+use crate::dataset::{run_combos, run_overlap, run_zipf, run_sketch, ComboType};
 
 pub mod accuracy;
 pub mod algo;
@@ -19,6 +19,9 @@ const DEFAULT_MEMORY: [f32; 5] = [1.0, 2.0, 3.0, 4.0, 5.0];
 const DEFAULT_NUM_SKETCH_ENTRIES: usize = 100;
 const DEFAULT_SKETCH_TYPES: [SketchType; 3] =
     [SketchType::Ssss, SketchType::Spread, SketchType::Achll];
+const DEFAULT_ZIPF_LABELS: usize = 100_000;
+const DEFAULT_ZIPF_EXPONENT: f64 = 0.2;
+const DEFAULT_ZIPF_SAMPLES: usize = 100_000_000;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -133,6 +136,37 @@ enum Command {
         #[clap(short, long, action = ArgAction::SetTrue)]
         verbose: bool,
     },
+
+    /// Run memory-constrained sketches against a synthetic Zipf distribution
+    Zipf {
+        /// Number of labels
+        #[clap(short, long, value_parser, default_value_t=DEFAULT_ZIPF_LABELS)]
+        labels: usize,
+
+        /// Exponent for Zipf distribution
+        #[clap(short, long, value_parser, default_value_t=DEFAULT_ZIPF_EXPONENT)]
+        exponent: f64,
+
+        /// Number of samples
+        #[clap(short, long, value_parser, default_value_t=DEFAULT_ZIPF_SAMPLES)]
+        num_samples: usize,
+
+        /// Sketch type
+        #[clap(short, long, value_parser, default_values_t=DEFAULT_SKETCH_TYPES)]
+        sketch_type: Vec<SketchType>,
+
+        /// Max amount of memory used by sketch (in MB)
+        #[clap(short, long, value_parser, default_values_t=DEFAULT_MEMORY)]
+        memory: Vec<f32>,
+
+        /// The size of the cardinality counters
+        #[clap(short, long, value_parser, default_values_t=DEFAULT_COUNTER_SIZES)]
+        counter_size: Vec<usize>,
+
+        /// Control the amount of output
+        #[clap(short, long, action = ArgAction::SetTrue)]
+        verbose: bool,
+    },
 }
 
 #[derive(clap::ValueEnum, Clone, Debug)]
@@ -154,12 +188,12 @@ impl fmt::Display for SketchType {
 macro_rules! specialized_dispatch {
     ($sketch_type:ident, $fn:expr) => {
         match $sketch_type {
-            SketchType::Achll => $fn(crate::algo::Achll),
-            SketchType::Schll => $fn(crate::algo::Schll),
-            SketchType::Osss => $fn(crate::algo::Osss),
-            SketchType::Rsss => $fn(crate::algo::Rsss),
-            SketchType::Spread => $fn(crate::algo::Spread),
-            SketchType::Ssss => $fn(crate::algo::Ssss),
+            crate::SketchType::Achll => $fn(crate::algo::Achll),
+            crate::SketchType::Schll => $fn(crate::algo::Schll),
+            crate::SketchType::Osss => $fn(crate::algo::Osss),
+            crate::SketchType::Rsss => $fn(crate::algo::Rsss),
+            crate::SketchType::Spread => $fn(crate::algo::Spread),
+            crate::SketchType::Ssss => $fn(crate::algo::Ssss),
         }
     };
 }
@@ -236,6 +270,25 @@ fn main() {
                 sketch_type,
                 *entries,
                 *counter_size,
+                *verbose,
+            );
+        }
+        Command::Zipf {
+            labels,
+            exponent,
+            num_samples,
+            sketch_type,
+            memory,
+            counter_size,
+            verbose,
+        } => {
+            run_zipf(
+                *labels,
+                *exponent,
+                *num_samples,
+                sketch_type,
+                memory,
+                counter_size,
                 *verbose,
             );
         }

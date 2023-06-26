@@ -82,13 +82,13 @@ fn run_generative_cases() {
     let k = 10;
     let verbose = true;
 
-    use crate::data;
-    run_generative_case_for_all_algo(1000, k, &data::synth::Uniform::new(k), verbose);
-    run_generative_case_for_all_algo(1000, k, &data::synth::Poisson::new(k), verbose);
-    run_generative_case_for_all_algo(1000, k, &data::synth::Repeats::new(k), verbose);
-    run_generative_case_for_all_algo(1000, k, &data::synth::CycleSingleItem::new(k), verbose);
-    run_generative_case_for_all_algo(1000, k, &data::synth::CycleUniqueItems::new(k), verbose);
-    run_generative_case_for_all_algo(100_000, 1000, &data::synth::OneLabel, verbose);
-    run_generative_case_for_all_algo(100, 1000, &data::synth::OneLabel, verbose);
-    run_generative_case_for_all_algo(100, 100, &data::synth::OneLabel, verbose);
+    use crate::data::synth;
+    run_generative_case_for_all_algo(1000, k, &synth::Uniform::new(k), verbose);
+    run_generative_case_for_all_algo(1000, k, &synth::Poisson::new(k), verbose);
+    run_generative_case_for_all_algo(1000, k, &synth::Repeats::new(k), verbose);
+    run_generative_case_for_all_algo(1000, k, &synth::CycleSingleItem::new(k), verbose);
+    run_generative_case_for_all_algo(1000, k, &synth::CycleUniqueItems::new(k), verbose);
+    run_generative_case_for_all_algo(100_000, 1000, &synth::OneLabel, verbose);
+    run_generative_case_for_all_algo(100, 1000, &synth::OneLabel, verbose);
+    run_generative_case_for_all_algo(100, 100, &synth::OneLabel, verbose);
 }
