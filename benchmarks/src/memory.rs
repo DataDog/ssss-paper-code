@@ -66,10 +66,10 @@ fn sss_counter_size(
 ) -> usize {
     match reset_strategy {
         sss::ResetStrategy::Recycle => {
-            size_of::<usize>() * 2 + hll_mem_size(cardinality_sketch_config.num_registers())
+            size_of::<usize>() + hll_mem_size(cardinality_sketch_config.num_registers())
         }
         sss::ResetStrategy::Offset => {
-            size_of::<usize>() + hll_mem_size(cardinality_sketch_config.num_registers())
+            size_of::<usize>() * 2 + hll_mem_size(cardinality_sketch_config.num_registers())
         }
     }
 }
