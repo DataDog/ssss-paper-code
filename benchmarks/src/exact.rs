@@ -5,6 +5,7 @@ use std::{
     hash::Hash,
     mem::size_of_val,
 };
+use ordered_float::NotNan;
 
 use itertools::Itertools;
 use sketch_traits::HeavyDistinctHitterSketch;
@@ -244,6 +245,21 @@ where
             .sqrt()
     }
 
+    /// Max Relative Error over Actual Top
+    pub fn actual_rel_max<'a>(
+        &'a self,
+        sketch: &'a impl HeavyDistinctHitterSketch<Label = L, Item = I>,
+        k: usize,
+    ) -> f64 {
+        self.rel_errors(sketch)
+            .take(k)
+            .map(NotNan::new)
+            .map(Result::unwrap)
+            .max()
+            .map(f64::from)
+            .unwrap()
+    }
+
     pub fn worst_err(
         &self,
         sketch: &impl HeavyDistinctHitterSketch<Label = L, Item = I>,
@@ -330,6 +346,13 @@ where
             .map(|e| e.powf(2.0) / l2)
             .sum::<f64>()
             .sqrt()
+    }
+
+    /// Max Relative Error over Sketch Top
+    pub fn sketch_rel_max(&self, sketch_top: &[(&L, u64)]) -> f64 {
+        self.rel_sketch_errors(sketch_top.iter())
+            .max_by(|a, b| a.total_cmp(b))
+            .unwrap()
     }
 }
 
@@ -426,6 +449,7 @@ mod tests {
         assert!(ground_truth.max() == 100);
         assert!(ground_truth.actual_rmae(&great_sketch, 10) == 0.0);
         assert!(ground_truth.actual_rrmse(&great_sketch, 10) == 0.0);
+        assert!(ground_truth.actual_rel_max(&great_sketch, 10) == 0.0);
         assert!(ground_truth.top_nae(&great_sketch, 10) == 0.0);
         assert!(ground_truth.total_nae(&great_sketch) == 0.0);
         assert!(ground_truth.top_nrse(&great_sketch, 10) == 0.0);
@@ -434,6 +458,7 @@ mod tests {
         assert!(ground_truth.sketch_rrmse(&great_sketch.top(10)) == 0.0);
         assert!(ground_truth.sketch_nae(&great_sketch.top(10)) == 0.0);
         assert!(ground_truth.sketch_nrse(&great_sketch.top(10)) == 0.0);
+        assert!(ground_truth.sketch_rel_max(&great_sketch.top(10)) == 0.0);
 
         let rel_errs = [99.0_f64 / 1., 97. / 2., 95. / 3., 93. / 4., 91. / 5.];
         assert!(
@@ -450,6 +475,8 @@ mod tests {
                     .sqrt()
                 < 0.0001)
         );
+        assert!(ground_truth.actual_rel_max(&bad_sketch, 10) >= 0.9);
+        assert!(ground_truth.sketch_rel_max(&bad_sketch.top(10)) >= 99.0);
 
         // test merging
         great_sketch.insert(1, &1);
