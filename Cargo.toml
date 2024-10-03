@@ -1,4 +1,6 @@
 [workspace]
+version = "1.0.0"
+resolver = "2"
 members = [
     "benchmarks",
     "count_hll",
