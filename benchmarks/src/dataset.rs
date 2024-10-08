@@ -145,7 +145,7 @@ pub fn run_sketch<A>(
 {
     let dataset = FolderDataset::new(folder_path, max_per_file);
     let ground_truth = Box::new(dataset_ground_truth(&dataset, verbose));
-    sketch_dataset(entries, counter_size, sketch_type, &ground_truth, &dataset);
+    sketch_dataset(entries, counter_size, sketch_type, &ground_truth, &dataset, verbose);
 }
 
 pub enum ComboType {
@@ -178,7 +178,7 @@ pub fn run_combos(
                         let entries = MaxCapacity::entries_for_mbs(&algorithm, *memory, *counter_size);
                         match combo_type {
                             ComboType::SingleSketch => {
-                                sketch_dataset(entries, *counter_size, &algorithm, &ground_truth, &dataset)
+                                sketch_dataset(entries, *counter_size, &algorithm, &ground_truth, &dataset, verbose)
                             }
                             ComboType::MergeSketches => merge_on_data(
                                 read_dir(folder_path).unwrap().map(|path| FileDataset::new(path.unwrap().path(), max_per_file)),
@@ -217,7 +217,7 @@ pub fn run_zipf(
                 for memory in memories {
                     for counter_size in counter_sizes {
                         let entries = MaxCapacity::entries_for_mbs(&algorithm, *memory, *counter_size);
-                        sketch_dataset(entries, *counter_size, &algorithm, &ground_truth, &dataset)
+                        sketch_dataset(entries, *counter_size, &algorithm, &ground_truth, &dataset, verbose)
                     }
                 }
             }
@@ -240,7 +240,7 @@ pub fn run_overlap(
     for sketch_type in sketch_types {
         specialized_dispatch!(sketch_type, |algorithm| {
             println!("Algo: {}", algorithm);
-            sketch_dataset(entries, counter_size, &algorithm, &ground_truth, &dataset);
+            sketch_dataset(entries, counter_size, &algorithm, &ground_truth, &dataset, verbose);
         })
     }
 }
@@ -251,6 +251,7 @@ pub fn sketch_dataset<L, I, A>(
     algorithm: &A,
     ground_truth: &GroundTruth<L, I>,
     dataset: &impl Dataset<Label = L, Item = I>,
+    verbose: bool,
 ) where
     L: Eq + Hash + Clone + Debug,
     I: Eq + Hash + Clone + Debug,
@@ -260,6 +261,7 @@ pub fn sketch_dataset<L, I, A>(
     let mut sketch = algorithm.new_sketch(entries, counter_size);
     let start = Instant::now();
     for (label, item) in dataset.iter() {
+        println!("{:?},{:?}", item, label);
         sketch.insert(label.clone(), &item);
     }
     println!("Insertion Time: {:.2?}", start.elapsed());
@@ -270,6 +272,11 @@ pub fn sketch_dataset<L, I, A>(
         counter_size,
         entries,
     );
+    if verbose {
+        let top_k = 10;
+        let sketch_top_k = sketch.top(top_k);
+        println!("Sketch Top {}: {:?}", top_k, sketch_top_k);
+    }
     print_stats(ground_truth, &sketch);
     println!();
 }
