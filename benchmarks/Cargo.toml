@@ -17,7 +17,7 @@ clap = { version = "4.3.5", features = ["derive"] }
 flate2 = { version = "1.0.25", default-features = false, features = ["default"] }
 itertools = { version = "0.10.5", default-features = false }
 num-format = { version = "0.4.3", default-features = false, features = ["std"] }
-ordered-float = { version = "3.4.0", default-features = false }
+ordered-float = { version = "5.0.0", default-features = false }
 rand = { version = "0.8.5", default-features = true }
 rand_distr = { version = "0.4.3", default-features = false }
 uuid = { version = "1.2.2", default-features = false, features = ["v4"] }
